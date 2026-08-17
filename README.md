@@ -1,23 +1,54 @@
-# Personal Portfolio Website
+# Interactive Multi-Page Portfolio Website
 
-## Overview
+This project is a fully functional React application built for Assignment 2. It converts a static HTML/CSS structure into a dynamic, multi-page application using React components, state, side effects, and client-side routing.
 
-This project is a fully responsive Personal Portfolio Website developed using HTML5 and CSS3 as part of the Full Stack Development course assignment. The website is designed using semantic HTML elements and follows modern web development practices. The portfolio presents my profile, technical skills, projects, and contact information in a clean and organized manner while maintaining accessibility and responsiveness across different devices.
+## Setup and Run Instructions
 
-## Design Rationale
+To run this project locally, follow these steps:
 
-The portfolio follows a modern dark theme inspired by professional developer portfolios. A minimal user interface with sufficient whitespace, consistent typography, rounded cards, and subtle hover animations creates a professional appearance without unnecessary visual distractions. Instead of using personal photographs or project screenshots, custom CSS-based project covers are used to maintain a consistent visual style.
+1. **Install Dependencies:**
+   Open your terminal in the project directory and run:
+   ```bash
+   npm install
+   ```
 
-## Layout Technique
+2. **Run the Development Server:**
+   Start the application by running:
+   ```bash
+   npm run dev
+   ```
+   Open the URL provided in the terminal (usually `http://localhost:5173/`) in your browser to view the portfolio.
 
-The website layout is implemented using a combination of CSS Grid and Flexbox. CSS Grid is used for larger page layouts such as the Hero, Skills, Projects, and Contact sections because it provides better control over multi-column arrangements. Flexbox is used for smaller components including the navigation bar, buttons, technology badges, and footer links, making alignment and spacing simple and responsive.
+3. **Build for Production:**
+   To verify there are no errors and create a production build, run:
+   ```bash
+   npm run build
+   ```
 
-The website includes responsive breakpoints at **768px** and **480px**, ensuring proper display on desktop, tablet, and mobile devices.
+## Component Tree & State-Lifting Decisions
 
-## Accessibility
+### Component Tree Overview
+- **`App`**: The root component configuring all routing.
+  - **`Layout`**: A wrapper providing a shared layout across all pages.
+    - **`Navbar`**: Persistent navigation and theme toggle.
+    - **`<Outlet />`**: Renders the active route's page (`Home`, `About`, `Skills`, `Projects`, `ProjectDetails`, `Contact`, `NotFound`).
+      - **`Projects`**: Renders a grid of projects.
+        - **`ProjectCard`**: A generic component receiving project data via props.
+          - **`ProjectInfo`**: A child component displaying the title and tech stack, demonstrating multi-level prop drilling.
 
-The website uses semantic HTML elements, descriptive headings, associated labels for form inputs, sufficient color contrast, keyboard-friendly navigation, and meaningful link text to improve accessibility.
+### State-Lifting Decisions
+- **Theme State (`theme` / `setTheme`)**: The dark/light theme state is lifted to the top-level `App` component. This was necessary because multiple distinct parts of the application need access to it: the root `<div>` in `App.jsx` needs the class name to apply CSS styles globally, and the `Navbar` component (via `Layout`) needs the toggle function and the current theme to display the correct button text (☀️ or 🌙).
+- **Form State (`formData` / `errors`)**: Kept local to the `Contact` component because no other components need to know what the user is typing into the contact form until submission.
+- **Card Details State (`showDetails`)**: Kept local to the `ProjectCard` component. This ensures that clicking "View Details" on one project card only expands that specific instance without affecting other cards.
 
-## Known Limitations
+## useEffect Hooks Implemented
 
-The contact form is currently static and does not submit data because JavaScript and backend integration are outside the scope of this assignment. Project cards link to GitHub repositories but do not include live demos or screenshots.
+This project utilizes `useEffect` for the following side effects:
+
+1. **Simulated Loading Sequence (`Home.jsx`)**
+   - **Why it was necessary:** To simulate data fetching or asset loading, providing a smoother user experience rather than immediately flashing the page content.
+   - **How it works:** It runs once on component mount (empty dependency array `[]`). It sets a `setTimeout` to delay rendering the main hero content by 1 second. It also returns a cleanup function (`clearTimeout`) to prevent memory leaks in case the user navigates away from the Home page before the timer finishes.
+
+2. **Theme Persistence (`App.jsx`)**
+   - **Why it was necessary:** To ensure that a user's preference for Dark or Light mode is remembered across page reloads and future visits.
+   - **How it works:** This hook has `[theme]` in its dependency array. Whenever the `theme` state changes, it writes the new preference to browser `localStorage`. (The initial state of `theme` also reads from `localStorage` synchronously to prevent a flash of the wrong theme).
