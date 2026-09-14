@@ -13,7 +13,6 @@ function About() {
 
         <div className="about-container">
           <article className="about-content">
-            <h3>Who am I?</h3>
 
             <p>
               I'm <strong>Ritesh Reddy Puchakayala</strong>, a Computer Science

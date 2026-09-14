@@ -38,18 +38,34 @@ function Contact() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (validateForm()) {
-      alert("Message submitted successfully!");
+      try {
+        const response = await fetch('http://localhost:5000/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
 
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-      });
-      setErrors({});
+        if (response.ok) {
+          alert("Message submitted successfully!");
+          setFormData({
+            name: "",
+            email: "",
+            message: "",
+          });
+          setErrors({});
+        } else {
+          const data = await response.json();
+          setErrors({ form: data.error || 'Server error occurred' });
+        }
+      } catch (err) {
+        setErrors({ form: 'Failed to connect to the server' });
+      }
     }
   };
 
@@ -153,6 +169,10 @@ function Contact() {
                 <p className="form-error">{errors.message}</p>
               )}
             </div>
+
+            {errors.form && (
+              <p className="form-error" style={{ textAlign: 'center', margin: '1rem 0' }}>{errors.form}</p>
+            )}
 
             <button
               type="submit"

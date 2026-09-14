@@ -4,26 +4,32 @@ This project is a fully functional React application built for Assignment 2. It 
 
 ## Setup and Run Instructions
 
-To run this project locally, follow these steps:
+To run this full-stack project locally, you need to start both the frontend and backend servers.
 
 1. **Install Dependencies:**
-   Open your terminal in the project directory and run:
+   Open your terminal in the project root (frontend) and run:
    ```bash
    npm install
    ```
+   Then navigate to the backend directory and install:
+   ```bash
+   cd server
+   npm install
+   ```
 
-2. **Run the Development Server:**
-   Start the application by running:
+2. **Run the Backend Server:**
+   In the `/server` directory, create a `.env` file based on `.env.example` and run:
+   ```bash
+   npm run dev
+   ```
+   The backend should start on `http://localhost:5000`.
+
+3. **Run the Frontend Development Server:**
+   Open a new terminal window in the project root and run:
    ```bash
    npm run dev
    ```
    Open the URL provided in the terminal (usually `http://localhost:5173/`) in your browser to view the portfolio.
-
-3. **Build for Production:**
-   To verify there are no errors and create a production build, run:
-   ```bash
-   npm run build
-   ```
 
 ## Component Tree & State-Lifting Decisions
 
@@ -52,3 +58,17 @@ This project utilizes `useEffect` for the following side effects:
 2. **Theme Persistence (`App.jsx`)**
    - **Why it was necessary:** To ensure that a user's preference for Dark or Light mode is remembered across page reloads and future visits.
    - **How it works:** This hook has `[theme]` in its dependency array. Whenever the `theme` state changes, it writes the new preference to browser `localStorage`. (The initial state of `theme` also reads from `localStorage` synchronously to prevent a flash of the wrong theme).
+
+## API Endpoints
+
+The backend Express server (`/server`) exposes the following API endpoints. No authentication is required for any endpoint.
+
+| Method | Endpoint | Description | Sample Request | Sample Response |
+|--------|----------|-------------|----------------|-----------------|
+| GET    | `/`      | Health check | `curl http://localhost:5000/` | `{ "status": "ok" }` (200 OK) |
+| GET    | `/api/projects` | Fetch all projects | `curl http://localhost:5000/api/projects` | `[{ "id": 1, "title": "...", ... }]` (200 OK) |
+| GET    | `/api/projects/:id` | Fetch specific project | `curl http://localhost:5000/api/projects/1` | `{ "id": 1, "title": "...", ... }` (200 OK) or `{ "error": "Project not found" }` (404 Not Found) |
+| POST   | `/api/contact` | Submit contact form | `curl -X POST -H "Content-Type: application/json" -d '{"name":"A","email":"a@a.com","message":"H"}' http://localhost:5000/api/contact` | `{ "message": "Submission successful", "data": { ... } }` (201 Created) or `{ "error": "Email is required" }` (400 Bad Request) |
+| GET    | `/api/contact` | List contact submissions | `curl http://localhost:5000/api/contact` | `[{ "name": "A", "email": "a@a.com", "message": "H", "date": "..." }]` (200 OK) |
+
+There is also a centralized error handling middleware which catches any undefined routes (e.g., `GET /api/doesnotexist`) and returns a JSON error body: `{ "error": "Route not found" }` with a 404 status.
